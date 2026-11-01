@@ -4,7 +4,7 @@
     "version": "0.0.0",
     "type": "module",
     "homepage": "https://fjuradobarbas-max.github.io/dieta-familiar",
-  
+
     "scripts": {
         "dev": "vite",
         "build": "vite build",
