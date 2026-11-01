@@ -1,0 +1,32 @@
+{
+    "guadalajara": {
+      "carne": [
+        {
+          "nombre": "Pechuga pollo",
+          "cantidad": "2 kg",
+          "comprado": false
+        },
+        {
+          "nombre": "Pavo loncheado",
+          "cantidad": "3 paquetes",
+          "comprado": false
+        }
+      ],
+      "pescado": [
+        {
+          "nombre": "Salmón",
+          "cantidad": "700 g",
+          "comprado": false
+        }
+      ]
+    },
+    "murillo": {
+      "fruta": [
+        {
+          "nombre": "Manzanas",
+          "cantidad": "8",
+          "comprado": false
+        }
+      ]
+    }
+  }

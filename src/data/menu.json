@@ -1,0 +1,114 @@
+{
+    "lunes": {
+      "fernando": {
+        "desayuno": "70 g pan integral (2 tostadas) + 80 g pavo (6-7 lonchas) + 1 cucharada guacamole",
+        "almuerzo": "Yogur proteico + 1 manzana",
+        "comida": "200 g pollo (3 filetes) + 150 g arroz cocido (8 cucharadas) + verduras libres",
+        "merienda": "3 tortitas arroz + 80 g pavo",
+        "cena": "220 g merluza (2 lomos) + ensalada"
+      },
+      "debora": {
+        "desayuno": "50 g pan integral (1 tostada grande) + 60 g pavo (4-5 lonchas) + 1 cucharada guacamole",
+        "almuerzo": "Yogur proteico + 1 mandarina",
+        "comida": "130 g pollo (2 filetes) + 90 g arroz cocido (5 cucharadas) + verduras libres",
+        "merienda": "2 tortitas arroz + 60 g pavo",
+        "cena": "150 g merluza (1 lomo) + ensalada sin tomate"
+      }
+    },
+    "martes": {
+      "fernando": {
+        "desayuno": "60 g avena (6 cucharadas) + 2 huevos + 3 claras",
+        "almuerzo": "200 g piña + yogur proteico",
+        "comida": "180 g ternera (2 filetes) + 250 g boniato (2 medianos) + verduras",
+        "merienda": "1 pera + 25 g nueces",
+        "cena": "Tortilla 3 huevos + verduras salteadas"
+      },
+      "debora": {
+        "desayuno": "30 g avena (3 cucharadas) + 1 huevo + 2 claras",
+        "almuerzo": "150 g piña + yogur proteico",
+        "comida": "130 g pollo (2 filetes) + 150 g boniato (1 mediano) + verduras",
+        "merienda": "1 pera pequeña + 15 g nueces",
+        "cena": "Tortilla 2 huevos + verduras salteadas"
+      }
+    },
+    "miercoles": {
+      "fernando": {
+        "desayuno": "2 tostadas + 80 g pavo",
+        "almuerzo": "Yogur Skyr + 100 g frutos rojos",
+        "comida": "200 g salmón (1 lomo grande) + 140 g quinoa (7 cucharadas)",
+        "merienda": "80 g pavo + 1 manzana",
+        "cena": "200 g pollo (3 filetes) + brócoli y espárragos"
+      },
+      "debora": {
+        "desayuno": "1 tostada grande + 60 g pavo",
+        "almuerzo": "Yogur Skyr + 70 g frutos rojos",
+        "comida": "140 g salmón (1 lomo mediano) + 90 g quinoa (5 cucharadas)",
+        "merienda": "60 g pavo + 1 manzana pequeña",
+        "cena": "130 g pollo (2 filetes) + brócoli y espárragos"
+      }
+    },
+    "jueves": {
+      "fernando": {
+        "desayuno": "3 huevos + 60 g pan (2 tostadas)",
+        "almuerzo": "Yogur proteico + fruta",
+        "comida": "150 g pasta integral cocida + 200 g pollo + verduras",
+        "merienda": "3 tortitas maíz + 80 g pavo",
+        "cena": "220 g lubina + verduras horno"
+      },
+      "debora": {
+        "desayuno": "2 huevos + 40 g pan (1 tostada)",
+        "almuerzo": "Yogur proteico + fruta",
+        "comida": "100 g pasta integral cocida + 130 g pollo + verduras",
+        "merienda": "2 tortitas maíz + 60 g pavo",
+        "cena": "150 g lubina + verduras horno"
+      }
+    },
+    "viernes": {
+      "fernando": {
+        "desayuno": "60 g avena + 250 ml leche",
+        "almuerzo": "Yogur proteico + fruta",
+        "comida": "300 g lentejas + 150 g pollo (2 filetes)",
+        "merienda": "Manzana + 25 g almendras",
+        "cena": "Tortilla 3 huevos + espárragos y calabacín"
+      },
+      "debora": {
+        "desayuno": "35 g avena + 200 ml leche",
+        "almuerzo": "Yogur proteico + fruta",
+        "comida": "220 g lentejas + 100 g pollo (1-2 filetes)",
+        "merienda": "Manzana pequeña + 15 g almendras",
+        "cena": "Tortilla 2 huevos + espárragos y calabacín"
+      }
+    },
+    "sabado": {
+      "fernando": {
+        "desayuno": "2 tostadas + 2 huevos",
+        "almuerzo": "Yogur proteico + fruta",
+        "comida": "150 g arroz cocido (8 cucharadas) + 200 g pollo y marisco",
+        "merienda": "3 tortitas arroz + 80 g pavo",
+        "cena": "200 g salmón + verduras"
+      },
+      "debora": {
+        "desayuno": "1 tostada + 1 huevo + 2 claras",
+        "almuerzo": "Yogur proteico + fruta",
+        "comida": "90 g arroz cocido (5 cucharadas) + 130 g pollo y marisco",
+        "merienda": "2 tortitas arroz + 60 g pavo",
+        "cena": "140 g salmón + verduras"
+      }
+    },
+    "domingo": {
+      "fernando": {
+        "desayuno": "2 tostadas + 2 huevos + 80 g pavo",
+        "almuerzo": "Fruta",
+        "comida": "Comida libre controlada",
+        "merienda": "Yogur proteico",
+        "cena": "Crema verduras + 200 g pavo (3 filetes)"
+      },
+      "debora": {
+        "desayuno": "1 tostada + 2 huevos",
+        "almuerzo": "Fruta",
+        "comida": "Comida libre controlada",
+        "merienda": "Yogur proteico",
+        "cena": "Crema verduras + 130 g pavo (2 filetes)"
+      }
+    }
+  }

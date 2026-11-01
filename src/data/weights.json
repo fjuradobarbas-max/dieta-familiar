@@ -1,0 +1,25 @@
+{
+    "fernando": {
+      "nombre": "Fernando",
+      "pesoInicial": 97,
+      "pesoObjetivo": 90,
+      "pesajes": [
+        {
+          "fecha": "31/10/2026",
+          "peso": 97
+        }
+      ]
+    },
+  
+    "debora": {
+      "nombre": "Débora",
+      "pesoInicial": 59,
+      "pesoObjetivo": 55,
+      "pesajes": [
+        {
+          "fecha": "31/10/2026",
+          "peso": 59
+        }
+      ]
+    }
+  }
