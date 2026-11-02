@@ -1,82 +1,72 @@
-import { useState } from "react";
-import shopping from "../data/shopping.json";
-import { db } from "../services/firebase";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import {
-  getProductos
+  getProductos,
+  addProducto,
+  deleteProducto,
+  subscribeProductos
 } from "../services/shoppingService";
-
-console.log("Firebase conectado:", db);
 
 function Shopping() {
   const [casa, setCasa] = useState("guadalajara");
-  const [comprados, setComprados] = useState({});
+
+  const [firebaseProductos, setFirebaseProductos] = useState([]);
 
   const [nombre, setNombre] = useState("");
   const [cantidad, setCantidad] = useState("");
   const [categoria, setCategoria] = useState("otros");
 
-  const [productos, setProductos] = useState(shopping);
+  const cargarProductos = async () => {
+    const lista = await getProductos(casa);
 
-  const [firebaseProductos, setFirebaseProductos] =
-  useState([]);
-
-  const datos = productos[casa];
-  useEffect(() => {
-    const cargarProductos = async () => {
-      const lista = await getProductos(casa);
-  
-      console.log(
-        "Productos Firebase:",
-        lista
-      );
-  
-      setFirebaseProductos(lista);
-    };
-  
-    cargarProductos();
-  }, [casa]);
-
-  const toggleComprado = (id) => {
-    setComprados((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    setFirebaseProductos(lista);
   };
 
-  const agregarProducto = () => {
-    if (!nombre.trim() || !cantidad.trim()) return;
+  useEffect(() => {
+    const unsubscribe =
+      subscribeProductos(
+        casa,
+        setFirebaseProductos
+      );
+  
+    return () => unsubscribe();
+  }, [casa]);
 
-    setProductos((prev) => ({
-      ...prev,
-      [casa]: {
-        ...prev[casa],
-        [categoria]: [
-          ...(prev[casa][categoria] || []),
-          {
-            nombre,
-            cantidad,
-          },
-        ],
-      },
-    }));
+  const agregarProducto = async () => {
+    if (!nombre.trim() || !cantidad.trim()) {
+      return;
+    }
+
+    await addProducto(casa, {
+      nombre,
+      cantidad,
+      categoria,
+      comprado: false,
+    });
 
     setNombre("");
     setCantidad("");
+
+    await cargarProductos();
   };
 
-  const eliminarProducto = (categoria, index) => {
-    setProductos((prev) => ({
-      ...prev,
-      [casa]: {
-        ...prev[casa],
-        [categoria]: prev[casa][categoria].filter(
-          (_, i) => i !== index
-        ),
-      },
-    }));
+  const eliminarProductoFirebase = async (id) => {
+    await deleteProducto(casa, id);
+
+    await cargarProductos();
   };
+
+  const categoriasOrdenadas = [
+    "carne",
+    "pescado",
+    "pasta",
+    "verduras",
+    "fruta",
+    "lacteos",
+    "limpieza",
+    "hogar",
+    "otros",
+  ];
 
   return (
     <div>
@@ -197,49 +187,48 @@ function Shopping() {
         </button>
       </div>
 
-      {Object.entries(datos).map(
-        ([categoria, listaProductos]) => (
-          <div
-            key={categoria}
-            className="card"
-          >
-            <h2>
-              {categoria.toUpperCase()}
-            </h2>
+      {categoriasOrdenadas.map(
+        (categoriaActual) => {
+          const productosCategoria =
+            firebaseProductos.filter(
+              (producto) =>
+                producto.categoria ===
+                categoriaActual
+            );
 
-            {listaProductos.map(
-              (producto, index) => {
-                const id = `${casa}-${categoria}-${index}`;
+          if (
+            productosCategoria.length === 0
+          ) {
+            return null;
+          }
 
-                return (
+          return (
+            <div
+              key={categoriaActual}
+              className="card"
+            >
+              <h2>
+                {categoriaActual.toUpperCase()}
+              </h2>
+
+              {productosCategoria.map(
+                (producto) => (
                   <div
-                    key={id}
+                    key={producto.id}
                     style={{
                       display: "flex",
                       justifyContent:
                         "space-between",
-                      alignItems:
-                        "center",
-                             borderBottom:
+                      alignItems: "center",
+                      borderBottom:
                         "1px solid #eee",
+                      padding: "10px 0",
                     }}
                   >
-                    <div
-                      onClick={() =>
-                        toggleComprado(id)
-                      }
-                      style={{
-                        cursor:
-                          "pointer",
-                        flex: 1,
-                      }}
-                    >
+                    <div>
                       <strong>
-                        {comprados[id]
-                          ? "✅"
-                          : "⬜"}
-                      </strong>{" "}
-                      {producto.nombre}
+                        {producto.nombre}
+                      </strong>
 
                       <div
                         style={{
@@ -257,9 +246,8 @@ function Shopping() {
 
                     <button
                       onClick={() =>
-                        eliminarProducto(
-                          categoria,
-                          index
+                        eliminarProductoFirebase(
+                          producto.id
                         )
                       }
                       style={{
@@ -280,11 +268,11 @@ function Shopping() {
                       🗑️
                     </button>
                   </div>
-                );
-              }
-            )}
-          </div>
-        )
+                )
+              )}
+            </div>
+          );
+        }
       )}
     </div>
   );
