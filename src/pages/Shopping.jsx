@@ -1,5 +1,8 @@
 import { useState } from "react";
 import shopping from "../data/shopping.json";
+import { db } from "../services/firebase";
+
+console.log("Firebase conectado:", db);
 
 function Shopping() {
   const [casa, setCasa] = useState("guadalajara");
