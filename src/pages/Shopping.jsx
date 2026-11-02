@@ -1,6 +1,11 @@
 import { useState } from "react";
 import shopping from "../data/shopping.json";
 import { db } from "../services/firebase";
+import { useEffect } from "react";
+
+import {
+  getProductos
+} from "../services/shoppingService";
 
 console.log("Firebase conectado:", db);
 
@@ -14,7 +19,24 @@ function Shopping() {
 
   const [productos, setProductos] = useState(shopping);
 
+  const [firebaseProductos, setFirebaseProductos] =
+  useState([]);
+
   const datos = productos[casa];
+  useEffect(() => {
+    const cargarProductos = async () => {
+      const lista = await getProductos(casa);
+  
+      console.log(
+        "Productos Firebase:",
+        lista
+      );
+  
+      setFirebaseProductos(lista);
+    };
+  
+    cargarProductos();
+  }, [casa]);
 
   const toggleComprado = (id) => {
     setComprados((prev) => ({
