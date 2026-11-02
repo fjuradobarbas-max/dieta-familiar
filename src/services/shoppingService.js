@@ -6,6 +6,7 @@
     addDoc,
     deleteDoc,
     doc,
+    updateDoc,
     onSnapshot
   } from "firebase/firestore";
 
@@ -29,6 +30,25 @@
         );
   
         callback(productos);
+      }
+    );
+  };
+
+  export const updateComprado = async (
+    casa,
+    id,
+    comprado
+  ) => {
+    await updateDoc(
+      doc(
+        db,
+        "shopping",
+        casa,
+        "productos",
+        id
+      ),
+      {
+        comprado,
       }
     );
   };

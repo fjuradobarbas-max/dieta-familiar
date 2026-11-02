@@ -4,23 +4,19 @@ import {
   getProductos,
   addProducto,
   deleteProducto,
-  subscribeProductos
+  subscribeProductos,
+  updateComprado,
 } from "../services/shoppingService";
 
 function Shopping() {
   const [casa, setCasa] = useState("guadalajara");
 
-  const [firebaseProductos, setFirebaseProductos] = useState([]);
+  const [firebaseProductos, setFirebaseProductos] =
+    useState([]);
 
   const [nombre, setNombre] = useState("");
   const [cantidad, setCantidad] = useState("");
   const [categoria, setCategoria] = useState("otros");
-
-  const cargarProductos = async () => {
-    const lista = await getProductos(casa);
-
-    setFirebaseProductos(lista);
-  };
 
   useEffect(() => {
     const unsubscribe =
@@ -28,7 +24,7 @@ function Shopping() {
         casa,
         setFirebaseProductos
       );
-  
+
     return () => unsubscribe();
   }, [casa]);
 
@@ -46,15 +42,21 @@ function Shopping() {
 
     setNombre("");
     setCantidad("");
-
-    await cargarProductos();
   };
 
-  const eliminarProductoFirebase = async (id) => {
-    await deleteProducto(casa, id);
+  const eliminarProductoFirebase =
+    async (id) => {
+      await deleteProducto(casa, id);
+    };
 
-    await cargarProductos();
-  };
+  const toggleCompradoFirebase =
+    async (producto) => {
+      await updateComprado(
+        casa,
+        producto.id,
+        !producto.comprado
+      );
+    };
 
   const categoriasOrdenadas = [
     "carne",
@@ -219,16 +221,30 @@ function Shopping() {
                       display: "flex",
                       justifyContent:
                         "space-between",
-                      alignItems: "center",
+                      alignItems:
+                        "center",
                       borderBottom:
                         "1px solid #eee",
                       padding: "10px 0",
                     }}
                   >
-                    <div>
+                    <div
+                      onClick={() =>
+                        toggleCompradoFirebase(
+                          producto
+                        )
+                      }
+                      style={{
+                        cursor: "pointer",
+                        flex: 1,
+                      }}
+                    >
                       <strong>
-                        {producto.nombre}
-                      </strong>
+                        {producto.comprado
+                          ? "✅"
+                          : "⬜"}
+                      </strong>{" "}
+                      {producto.nombre}
 
                       <div
                         style={{
