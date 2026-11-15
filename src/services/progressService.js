@@ -48,6 +48,7 @@ import {
     );
   };
   
+  
   export const addPesaje = async (
     persona,
     fecha,
