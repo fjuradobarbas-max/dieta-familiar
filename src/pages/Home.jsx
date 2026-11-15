@@ -1,6 +1,13 @@
+import { useState, useEffect } from "react";
+
 import menu from "../data/menu.json";
-import weights from "../data/weights.json";
-import shopping from "../data/shopping.json";
+
+import {
+  subscribePersona,
+  subscribePesajes,
+  getUltimoPeso,
+  ordenarPesajes,
+} from "../services/progressService";
 
 function Home() {
   const dias = [
@@ -17,41 +24,97 @@ function Home() {
 
   const menuDia = menu[dia];
 
+  const [fernando, setFernando] =
+    useState(null);
+
+  const [debora, setDebora] =
+    useState(null);
+
+  const [pesajesFernando, setPesajesFernando] =
+    useState([]);
+
+  const [pesajesDebora, setPesajesDebora] =
+    useState([]);
+
+  useEffect(() => {
+    const unsubFernando =
+      subscribePersona(
+        "fernando",
+        setFernando
+      );
+
+    const unsubDebora =
+      subscribePersona(
+        "debora",
+        setDebora
+      );
+
+    const unsubPesajesFernando =
+      subscribePesajes(
+        "fernando",
+        (datos) =>
+          setPesajesFernando(
+            ordenarPesajes(datos)
+          )
+      );
+
+    const unsubPesajesDebora =
+      subscribePesajes(
+        "debora",
+        (datos) =>
+          setPesajesDebora(
+            ordenarPesajes(datos)
+          )
+      );
+
+    return () => {
+      unsubFernando();
+      unsubDebora();
+      unsubPesajesFernando();
+      unsubPesajesDebora();
+    };
+  }, []);
+
+  const contarPendientes = (
+    pesajes
+  ) => pesajes.length;
+
+  if (
+    !fernando ||
+    !debora
+  ) {
+    return (
+      <div className="card">
+        Cargando...
+      </div>
+    );
+  }
+
   const fernandoActual =
-    weights.fernando.pesajes[
-      weights.fernando.pesajes.length - 1
-    ].peso;
+    getUltimoPeso(
+      fernando,
+      pesajesFernando
+    );
 
   const deboraActual =
-    weights.debora.pesajes[
-      weights.debora.pesajes.length - 1
-    ].peso;
+    getUltimoPeso(
+      debora,
+      pesajesDebora
+    );
 
   const progresoFernando =
-    ((weights.fernando.pesoInicial -
+    ((fernando.pesoInicial -
       fernandoActual) /
-      (weights.fernando.pesoInicial -
-        weights.fernando.pesoObjetivo)) *
+      (fernando.pesoInicial -
+        fernando.pesoObjetivo)) *
     100;
 
   const progresoDebora =
-    ((weights.debora.pesoInicial -
+    ((debora.pesoInicial -
       deboraActual) /
-      (weights.debora.pesoInicial -
-        weights.debora.pesoObjetivo)) *
+      (debora.pesoInicial -
+        debora.pesoObjetivo)) *
     100;
-
-  const contarPendientes = (casa) => {
-    let total = 0;
-
-    Object.values(shopping[casa]).forEach(
-      (categoria) => {
-        total += categoria.length;
-      }
-    );
-
-    return total;
-  };
 
   return (
     <div>
@@ -67,7 +130,8 @@ function Home() {
         </div>
 
         <div className="metric-small">
-          Objetivo: {weights.fernando.pesoObjetivo} kg
+          Objetivo:{" "}
+          {fernando.pesoObjetivo} kg
         </div>
 
         <div className="progress-bar">
@@ -94,7 +158,8 @@ function Home() {
         </div>
 
         <div className="metric-small">
-          Objetivo: {weights.debora.pesoObjetivo} kg
+          Objetivo:{" "}
+          {debora.pesoObjetivo} kg
         </div>
 
         <div className="progress-bar">
@@ -117,17 +182,27 @@ function Home() {
         <h2>🍳 Desayuno</h2>
 
         <p>
-          <strong>Fernando</strong>
+          <strong>
+            Fernando
+          </strong>
           <br />
-          {menuDia.fernando.desayuno}
+          {
+            menuDia.fernando
+              .desayuno
+          }
         </p>
 
         <br />
 
         <p>
-          <strong>Débora</strong>
+          <strong>
+            Débora
+          </strong>
           <br />
-          {menuDia.debora.desayuno}
+          {
+            menuDia.debora
+              .desayuno
+          }
         </p>
       </div>
 
@@ -135,17 +210,27 @@ function Home() {
         <h2>🍎 Almuerzo</h2>
 
         <p>
-          <strong>Fernando</strong>
+          <strong>
+            Fernando
+          </strong>
           <br />
-          {menuDia.fernando.almuerzo}
+          {
+            menuDia.fernando
+              .almuerzo
+          }
         </p>
 
         <br />
 
         <p>
-          <strong>Débora</strong>
+          <strong>
+            Débora
+          </strong>
           <br />
-          {menuDia.debora.almuerzo}
+          {
+            menuDia.debora
+              .almuerzo
+          }
         </p>
       </div>
 
@@ -153,17 +238,27 @@ function Home() {
         <h2>🍽️ Comida</h2>
 
         <p>
-          <strong>Fernando</strong>
+          <strong>
+            Fernando
+          </strong>
           <br />
-          {menuDia.fernando.comida}
+          {
+            menuDia.fernando
+              .comida
+          }
         </p>
 
         <br />
 
         <p>
-          <strong>Débora</strong>
+          <strong>
+            Débora
+          </strong>
           <br />
-          {menuDia.debora.comida}
+          {
+            menuDia.debora
+              .comida
+          }
         </p>
       </div>
 
@@ -171,17 +266,27 @@ function Home() {
         <h2>🥜 Merienda</h2>
 
         <p>
-          <strong>Fernando</strong>
+          <strong>
+            Fernando
+          </strong>
           <br />
-          {menuDia.fernando.merienda}
+          {
+            menuDia.fernando
+              .merienda
+          }
         </p>
 
         <br />
 
         <p>
-          <strong>Débora</strong>
+          <strong>
+            Débora
+          </strong>
           <br />
-          {menuDia.debora.merienda}
+          {
+            menuDia.debora
+              .merienda
+          }
         </p>
       </div>
 
@@ -189,38 +294,49 @@ function Home() {
         <h2>🌙 Cena</h2>
 
         <p>
-          <strong>Fernando</strong>
+          <strong>
+            Fernando
+          </strong>
           <br />
-          {menuDia.fernando.cena}
+          {
+            menuDia.fernando
+              .cena
+          }
         </p>
 
         <br />
 
         <p>
-          <strong>Débora</strong>
+          <strong>
+            Débora
+          </strong>
           <br />
-          {menuDia.debora.cena}
+          {
+            menuDia.debora
+              .cena
+          }
         </p>
       </div>
 
       <div className="card">
-        <h2>🛒 Compra pendiente</h2>
+        <h2>
+          📈 Resumen pesos
+        </h2>
 
         <p>
-          🏠 Guadalajara:{" "}
-          {contarPendientes(
-            "guadalajara"
-          )}{" "}
-          productos
+          👨 Fernando:{" "}
+          {
+            pesajesFernando.length
+          }{" "}
+          registros
         </p>
 
-
         <p>
-          🏠 Murillo:{" "}
-          {contarPendientes(
-            "murillo"
-          )}{" "}
-          productos
+          👩 Débora:{" "}
+          {
+            pesajesDebora.length
+          }{" "}
+          registros
         </p>
       </div>
     </div>
