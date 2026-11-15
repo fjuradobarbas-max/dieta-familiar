@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import weightsData from "../data/weights.json";
+import {  subscribeWeight,} from "../services/progressService";
 
 import {
   ResponsiveContainer,
@@ -14,6 +16,32 @@ import {
 
 function Progress() {
   const [pesos, setPesos] = useState(weightsData);
+
+  const [fernandoFirebase, setFernandoFirebase] =
+  useState(null);
+
+const [deboraFirebase, setDeboraFirebase] =
+  useState(null);
+
+  useEffect(() => {
+    const unsubscribeFernando =
+      subscribeWeight(
+        "fernando",
+        setFernandoFirebase
+      );
+  
+    const unsubscribeDebora =
+      subscribeWeight(
+        "debora",
+        setDeboraFirebase
+      );
+  
+    return () => {
+      unsubscribeFernando();
+      unsubscribeDebora();
+    };
+  }, []);
+  
 
   const [personaSeleccionada, setPersonaSeleccionada] =
     useState("fernando");
@@ -67,6 +95,35 @@ function Progress() {
       <h1 className="page-title">
         📈 Seguimiento
       </h1>
+      <div className="card">
+  <h2>🔥 Firebase Test</h2>
+
+  <p>
+    Fernando inicial:
+    {" "}
+    {fernandoFirebase?.pesoInicial}
+  </p>
+
+  <p>
+    Fernando objetivo:
+    {" "}
+    {fernandoFirebase?.pesoObjetivo}
+  </p>
+
+  <hr />
+
+  <p>
+    Débora inicial:
+    {" "}
+    {deboraFirebase?.pesoInicial}
+  </p>
+
+  <p>
+    Débora objetivo:
+    {" "}
+    {deboraFirebase?.pesoObjetivo}
+  </p>
+</div>
 
       <div className="card">
         <h2>➕ Nuevo Pesaje</h2>
