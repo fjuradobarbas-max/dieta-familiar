@@ -48,27 +48,37 @@ import {
     );
   };
   
-  export const addPesaje =
-    async (
+  export const addPesaje = async (
+    persona,
+    fecha,
+    peso
+  ) => {
+  
+    console.log(
+      "Añadiendo pesaje:",
       persona,
       fecha,
       peso
-    ) => {
-      await addDoc(
-        collection(
-          db,
-          "weights",
-          persona,
-          "pesajes"
-        ),
-        {
-          fecha,
-          peso: parseFloat(
-            peso
-          ),
-        }
-      );
-    };
+    );
+  
+    const docRef = await addDoc(
+      collection(
+        db,
+        "weights",
+        persona,
+        "pesajes"
+      ),
+      {
+        fecha,
+        peso: Number(peso),
+      }
+    );
+  
+    console.log(
+      "Documento creado:",
+      docRef.id
+    );
+  };
   
   export const deletePesaje =
     async (
