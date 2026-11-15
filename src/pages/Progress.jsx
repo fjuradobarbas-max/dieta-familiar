@@ -1,7 +1,13 @@
-import { useState } from "react";
-import { useEffect } from "react";
-import weightsData from "../data/weights.json";
-import {  subscribeWeight,} from "../services/progressService";
+import { useState, useEffect } from "react";
+
+import {
+  subscribePersona,
+  subscribePesajes,
+  addPesaje,
+  deletePesaje,
+  ordenarPesajes,
+  getUltimoPeso,
+} from "../services/progressService";
 
 import {
   ResponsiveContainer,
@@ -15,34 +21,6 @@ import {
 } from "recharts";
 
 function Progress() {
-  const [pesos, setPesos] = useState(weightsData);
-
-  const [fernandoFirebase, setFernandoFirebase] =
-  useState(null);
-
-const [deboraFirebase, setDeboraFirebase] =
-  useState(null);
-
-  useEffect(() => {
-    const unsubscribeFernando =
-      subscribeWeight(
-        "fernando",
-        setFernandoFirebase
-      );
-  
-    const unsubscribeDebora =
-      subscribeWeight(
-        "debora",
-        setDeboraFirebase
-      );
-  
-    return () => {
-      unsubscribeFernando();
-      unsubscribeDebora();
-    };
-  }, []);
-  
-
   const [personaSeleccionada, setPersonaSeleccionada] =
     useState("fernando");
 
@@ -53,77 +31,105 @@ const [deboraFirebase, setDeboraFirebase] =
     return hoy.toISOString().split("T")[0];
   });
 
-  const agregarPesaje = () => {
-    if (!peso || !fecha) return;
+  const [fernando, setFernando] =
+    useState(null);
 
-    const fechaFormateada = fecha
-      .split("-")
-      .reverse()
-      .join("/");
+  const [debora, setDebora] =
+    useState(null);
 
-    setPesos((prev) => ({
-      ...prev,
-      [personaSeleccionada]: {
-        ...prev[personaSeleccionada],
-        pesajes: [
-          ...prev[personaSeleccionada].pesajes,
-          {
-            fecha: fechaFormateada,
-            peso: parseFloat(peso),
-          },
-        ],
-      },
-    }));
+  const [pesajesFernando, setPesajesFernando] =
+    useState([]);
 
-    setPeso("");
-  };
+  const [pesajesDebora, setPesajesDebora] =
+    useState([]);
 
-  const eliminarPesaje = (personaId, index) => {
-    setPesos((prev) => ({
-      ...prev,
-      [personaId]: {
-        ...prev[personaId],
-        pesajes: prev[personaId].pesajes.filter(
-          (_, i) => i !== index
-        ),
-      },
-    }));
-  };
+  useEffect(() => {
+    const unsubFernando =
+      subscribePersona(
+        "fernando",
+        setFernando
+      );
+
+    const unsubDebora =
+      subscribePersona(
+        "debora",
+        setDebora
+      );
+
+    const unsubPesajesFernando =
+      subscribePesajes(
+        "fernando",
+        (datos) =>
+          setPesajesFernando(
+            ordenarPesajes(datos)
+          )
+      );
+
+    const unsubPesajesDebora =
+      subscribePesajes(
+        "debora",
+        (datos) =>
+          setPesajesDebora(
+            ordenarPesajes(datos)
+          )
+      );
+
+    return () => {
+      unsubFernando();
+      unsubDebora();
+      unsubPesajesFernando();
+      unsubPesajesDebora();
+    };
+  }, []);
+
+  const agregarPesajeFirebase =
+    async () => {
+      if (!peso || !fecha) return;
+
+      const fechaFormateada =
+        fecha
+          .split("-")
+          .reverse()
+          .join("/");
+
+      await addPesaje(
+        personaSeleccionada,
+        fechaFormateada,
+        peso
+      );
+
+      setPeso("");
+    };
+
+  const eliminarPesajeFirebase =
+    async (
+      persona,
+      id
+    ) => {
+      await deletePesaje(
+        persona,
+        id
+      );
+    };
+
+  const personas = [
+    {
+      id: "fernando",
+      persona: fernando,
+      pesajes: pesajesFernando,
+    },
+    {
+      id: "debora",
+      persona: debora,
+      pesajes: pesajesDebora,
+    },
+  ];
 
   return (
     <div>
       <h1 className="page-title">
         📈 Seguimiento
       </h1>
-      <div className="card">
-  <h2>🔥 Firebase Test</h2>
-
-  <p>
-    Fernando inicial:
-    {" "}
-    {fernandoFirebase?.pesoInicial}
-  </p>
-
-  <p>
-    Fernando objetivo:
-    {" "}
-    {fernandoFirebase?.pesoObjetivo}
-  </p>
-
-  <hr />
-
-  <p>
-    Débora inicial:
-    {" "}
-    {deboraFirebase?.pesoInicial}
-  </p>
-
-  <p>
-    Débora objetivo:
-    {" "}
-    {deboraFirebase?.pesoObjetivo}
-  </p>
-</div>
 
       <div className="card">
         <h2>➕ Nuevo Pesaje</h2>
@@ -150,7 +156,9 @@ const [deboraFirebase, setDeboraFirebase] =
           type="date"
           value={fecha}
           onChange={(e) =>
-            setFecha(e.target.value)
+            setFecha(
+              e.target.value
+            )
           }
           className="form-input"
         />
@@ -161,26 +169,37 @@ const [deboraFirebase, setDeboraFirebase] =
           placeholder="Peso"
           value={peso}
           onChange={(e) =>
-            setPeso(e.target.value)
+            setPeso(
+              e.target.value
+            )
           }
           className="form-input"
         />
 
         <button
           className="primary-button"
-          onClick={agregarPesaje}
+          onClick={
+            agregarPesajeFirebase
+          }
         >
           Guardar Pesaje
         </button>
       </div>
 
-      {Object.entries(pesos).map(
-        ([id, persona]) => {
+      {personas.map(
+        ({
+          id,
+          persona,
+          pesajes,
+        }) => {
+          if (!persona)
+            return null;
+
           const pesoActual =
-            persona.pesajes[
-              persona.pesajes.length - 1
-            ]?.peso ||
-            persona.pesoInicial;
+            getUltimoPeso(
+              persona,
+              pesajes
+            );
 
           const perdidos =
             persona.pesoInicial -
@@ -190,38 +209,47 @@ const [deboraFirebase, setDeboraFirebase] =
             pesoActual -
             persona.pesoObjetivo;
 
-          const progreso = Math.max(
-            0,
-            Math.min(
-              100,
-              (perdidos /
-                (persona.pesoInicial -
-                  persona.pesoObjetivo)) *
-                100
-            )
-          );
+          const progreso =
+            Math.max(
+              0,
+              Math.min(
+                100,
+                (perdidos /
+                  (persona.pesoInicial -
+                    persona.pesoObjetivo)) *
+                  100
+              )
+            );
 
           const pesosGrafica =
-            persona.pesajes.map(
+            pesajes.map(
               (registro) =>
                 registro.peso
             );
 
-          const minPeso = Math.min(
-            ...pesosGrafica,
-            persona.pesoObjetivo
-          );
+          const minPeso =
+            Math.min(
+              ...pesosGrafica,
+              persona.pesoObjetivo,
+              pesoActual
+            );
 
-          const maxPeso = Math.max(
-            ...pesosGrafica,
-            persona.pesoObjetivo
-          );
+          const maxPeso =
+            Math.max(
+              ...pesosGrafica,
+              persona.pesoObjetivo,
+              pesoActual
+            );
 
           const rangoMin =
-            Math.floor(minPeso - 2);
+            Math.floor(
+              minPeso - 2
+            );
 
           const rangoMax =
-            Math.ceil(maxPeso + 2);
+            Math.ceil(
+              maxPeso + 2
+            );
 
           return (
             <div
@@ -229,8 +257,8 @@ const [deboraFirebase, setDeboraFirebase] =
               className="card"
             >
               <h2>
-                {persona.nombre ===
-                "Fernando"
+                {id ===
+                "fernando"
                   ? "👨 Fernando"
                   : "👩 Débora"}
               </h2>
@@ -241,7 +269,8 @@ const [deboraFirebase, setDeboraFirebase] =
                   gridTemplateColumns:
                     "repeat(auto-fit,minmax(140px,1fr))",
                   gap: "10px",
-                  marginTop: "15px",
+                  marginTop:
+                    "15px",
                   marginBottom:
                     "20px",
                 }}
@@ -303,13 +332,14 @@ const [deboraFirebase, setDeboraFirebase] =
                 ✅ Perdidos:{" "}
                 {perdidos.toFixed(
                   1
-                )}{" "}
-                kg
+                )} kg
               </p>
 
               <p>
                 🎯 Faltan:{" "}
-                {faltan.toFixed(1)} kg
+                {faltan.toFixed(
+                  1
+                )} kg
               </p>
 
               <p>
@@ -341,18 +371,13 @@ const [deboraFirebase, setDeboraFirebase] =
               <div
                 style={{
                   width: "100%",
-                  height: "350px",
-                  marginTop:
-                    "15px",
-                  marginBottom:
-                    "20px",
+                  height:
+                    "350px",
                 }}
               >
                 <ResponsiveContainer>
                   <LineChart
-                    data={
-                      persona.pesajes
-                    }
+                    data={pesajes}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
 
@@ -390,7 +415,9 @@ const [deboraFirebase, setDeboraFirebase] =
                       type="monotone"
                       dataKey="peso"
                       stroke="#6c63ff"
-                      strokeWidth={4}
+                      strokeWidth={
+                        4
+                      }
                       dot={{
                         r: 6,
                       }}
@@ -403,13 +430,14 @@ const [deboraFirebase, setDeboraFirebase] =
                 📅 Histórico
               </h3>
 
-              {persona.pesajes.map(
+              {pesajes.map(
                 (
-                  registro,
-                  index
+                  registro
                 ) => (
                   <div
-                    key={index}
+                    key={
+                      registro.id
+                    }
                     style={{
                       display:
                         "flex",
@@ -436,9 +464,9 @@ const [deboraFirebase, setDeboraFirebase] =
 
                     <button
                       onClick={() =>
-                        eliminarPesaje(
+                        eliminarPesajeFirebase(
                           id,
-                          index
+                          registro.id
                         )
                       }
                       style={{
