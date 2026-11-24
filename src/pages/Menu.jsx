@@ -1,145 +1,53 @@
 import { useState } from "react";
+
 import menu from "../data/menu.json";
+import { PERSONAS, COMIDAS, SEMANA } from "../constants";
+import { getDiaHoy } from "../utils/dates";
+
+import Segmented from "../components/Segmented";
+import MenuCard from "../components/MenuCard";
+
+const FILTROS = [{ id: "ambos", nombre: "Ambos" }, ...PERSONAS];
 
 function Menu() {
-  const dias = [
-    "lunes",
-    "martes",
-    "miercoles",
-    "jueves",
-    "viernes",
-    "sabado",
-    "domingo",
-  ];
+  const hoy = getDiaHoy();
+  const [dia, setDia] = useState(hoy);
+  const [filtro, setFiltro] = useState("ambos");
 
-  const hoy =
-    [
-      "domingo",
-      "lunes",
-      "martes",
-      "miercoles",
-      "jueves",
-      "viernes",
-      "sabado",
-    ][new Date().getDay()];
-
-  const [diaSeleccionado, setDiaSeleccionado] =
-    useState(hoy);
-
-  const menuDia =
-    menu[diaSeleccionado];
+  const menuDia = menu[dia];
+  const personas = filtro === "ambos" ? PERSONAS : PERSONAS.filter((p) => p.id === filtro);
+  const nombreDia = SEMANA.find((d) => d.id === dia)?.nombre;
 
   return (
-    <div>
-      <h1 className="page-title">
-        🍽️ Menú Semanal
-      </h1>
+    <div className="page">
+      <header className="hero">
+        <p className="hero-eyebrow">Menú semanal</p>
+        <h1 className="hero-title">
+          {nombreDia} {dia === hoy && <span className="badge">Hoy</span>}
+        </h1>
+      </header>
 
-      <div className="day-selector">
-        {dias.map((dia) => (
+      <div className="days">
+        {SEMANA.map((d) => (
           <button
-            key={dia}
-            onClick={() =>
-              setDiaSeleccionado(dia)
-            }
-            className={`day-button ${
-              diaSeleccionado === dia
-                ? "active"
-                : ""
-            }`}
+            key={d.id}
+            type="button"
+            className={`day ${dia === d.id ? "active" : ""} ${hoy === d.id ? "today" : ""}`}
+            onClick={() => setDia(d.id)}
+            aria-label={d.nombre}
           >
-            {dia
-              .substring(0, 3)
-              .toUpperCase()}
+            <span className="day-letter">{d.corto}</span>
+            <span className="day-name">{d.nombre.slice(0, 3)}</span>
           </button>
         ))}
       </div>
 
-      <div className="card">
-        <h2>
-          📅{" "}
-          {diaSeleccionado.toUpperCase()}
-        </h2>
-      </div>
+      <Segmented options={FILTROS} value={filtro} onChange={setFiltro} />
 
-      <div className="card">
-        <h2>👨 Fernando</h2>
-
-        <div className="meal-card">
-          <strong>
-            🍳 Desayuno
-          </strong>
-          <br />
-          {menuDia.fernando.desayuno}
-        </div>
-
-        <div className="meal-card">
-          <strong>
-            🍎 Almuerzo
-          </strong>
-          <br />
-          {menuDia.fernando.almuerzo}
-        </div>
-
-        <div className="meal-card">
-          <strong>🍽️ Comida</strong>
-          <br />
-          {menuDia.fernando.comida}
-        </div>
-
-        <div className="meal-card">
-          <strong>
-            🥜 Merienda
-          </strong>
-          <br />
-          {menuDia.fernando.merienda}
-        </div>
-
-        <div className="meal-card">
-          <strong>🌙 Cena</strong>
-          <br />
-          {menuDia.fernando.cena}
-        </div>
-      </div>
-
-      <div className="card">
-        <h2>👩 Débora</h2>
-
-        <div className="meal-card">
-          <strong>
-            🍳 Desayuno
-          </strong>
-          <br />
-          {menuDia.debora.desayuno}
-        </div>
-
-        <div className="meal-card">
-          <strong>
-            🍎 Almuerzo
-          </strong>
-          <br />
-          {menuDia.debora.almuerzo}
-        </div>
-
-        <div className="meal-card">
-          <strong>🍽️ Comida</strong>
-          <br />
-          {menuDia.debora.comida}
-        </div>
-
-        <div className="meal-card">
-          <strong>
-            🥜 Merienda
-          </strong>
-          <br />
-          {menuDia.debora.merienda}
-        </div>
-
-        <div className="meal-card">
-          <strong>🌙 Cena</strong>
-          <br />
-          {menuDia.debora.cena}
-        </div>
+      <div className="stack timeline">
+        {COMIDAS.map((c) => (
+          <MenuCard key={c.id} comida={c} menuDia={menuDia} personas={personas} />
+        ))}
       </div>
     </div>
   );
