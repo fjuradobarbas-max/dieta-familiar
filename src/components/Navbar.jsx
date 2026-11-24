@@ -5,7 +5,6 @@ const LINKS = [
   { to: "/menu", emoji: "🍽️", label: "Menú" },
   { to: "/shopping", emoji: "🛒", label: "Compra" },
   { to: "/progress", emoji: "📈", label: "Peso" },
-  { to: "/marcos", emoji: "🎒", label: "Marcos" },
 ];
 
 function Navbar() {

@@ -467,16 +467,23 @@ a {
 
 .segmented-item {
   flex: 1;
-  padding: 9px 10px;
+  min-width: 0;
+  padding: 9px 4px;
   border-radius: 11px;
   font-weight: 650;
   font-size: 14px;
+  white-space: nowrap;
   color: var(--muted);
   transition: all 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
+}
+
+.segmented.compact .segmented-item {
+  font-size: 13px;
+  gap: 4px;
 }
 
 .segmented-item.active {
@@ -977,7 +984,7 @@ a {
   left: 50%;
   transform: translateX(-50%);
   bottom: calc(env(safe-area-inset-bottom) + 12px);
-  width: min(calc(100% - 20px), 460px);
+  width: min(calc(100% - 24px), 440px);
   display: flex;
   justify-content: space-between;
   padding: 6px;
@@ -999,7 +1006,7 @@ a {
   padding: 8px 0;
   border-radius: 18px;
   color: var(--muted);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 650;
   transition: all 0.2s;
 }

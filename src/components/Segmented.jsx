@@ -1,7 +1,7 @@
 // Selector tipo "pastilla" (iOS segmented control)
-function Segmented({ options, value, onChange }) {
+function Segmented({ options, value, onChange, compact }) {
   return (
-    <div className="segmented" role="tablist">
+    <div className={`segmented ${compact ? "compact" : ""}`} role="tablist">
       {options.map((o) => (
         <button
           key={o.id}
