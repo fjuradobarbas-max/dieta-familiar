@@ -1,28 +1,28 @@
 import { useEffect, useState } from "react";
-import { actualizarReceta, leerEnlace } from "../services/recetasService";
+import { refrescarReceta } from "../services/recetasService";
 
-// Las miniaturas de TikTok/Instagram caducan a los pocos días.
-// Si la imagen falla, se pide una nueva y se guarda.
-const refrescando = new Set();
+// Las miniaturas de TikTok/Instagram caducan a los pocos días, y alguna
+// receta pudo guardarse sin ella. En ambos casos se vuelve a leer el vídeo
+// (una vez por sesión) y se guarda lo que falte.
+const refrescadas = new Set();
+
+const refrescar = (receta) => {
+  if (refrescadas.has(receta.id) || !receta.url) return;
+  refrescadas.add(receta.id);
+  refrescarReceta(receta).catch(() => {
+    /* se queda el fondo de color */
+  });
+};
 
 function Miniatura({ receta, grande, children }) {
   const [fallo, setFallo] = useState(false);
 
   useEffect(() => setFallo(false), [receta.miniatura]);
 
-  const alFallar = async () => {
-    setFallo(true);
-    if (refrescando.has(receta.id) || !receta.url) return;
-    refrescando.add(receta.id);
-    try {
-      const nuevo = await leerEnlace(receta.url);
-      if (nuevo.miniatura && nuevo.miniatura !== receta.miniatura) {
-        await actualizarReceta(receta.id, { miniatura: nuevo.miniatura });
-      }
-    } catch {
-      /* se queda el fondo de color */
-    }
-  };
+  useEffect(() => {
+    if (!receta.miniatura || !receta.descripcion) refrescar(receta);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [receta.id, receta.miniatura, receta.descripcion]);
 
   return (
     <div className={`thumb ${grande ? "thumb-big" : ""} thumb-${receta.plataforma}`}>
@@ -32,7 +32,10 @@ function Miniatura({ receta, grande, children }) {
           alt=""
           loading="lazy"
           referrerPolicy="no-referrer"
-          onError={alFallar}
+          onError={() => {
+            setFallo(true);
+            refrescar(receta);
+          }}
         />
       ) : (
         <div className="thumb-placeholder">🍽️</div>

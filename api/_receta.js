@@ -47,40 +47,114 @@ const textoPlano = (html) =>
     .trim();
 
 // ---------- TikTok ----------
-async function leerTikTok(url) {
-  let final = url;
-  // Enlaces cortos (vm.tiktok.com / vt.tiktok.com / tiktok.com/t/...) -> enlace completo
-  if (!/\/video\/\d+/.test(url)) {
+const ID_TIKTOK = /\/(?:video|photo)\/(\d{8,})/;
+
+// Sigue las redirecciones de los enlaces cortos (vm.tiktok.com, vt.tiktok.com,
+// tiktok.com/t/...) leyendo la cabecera Location, sin cargar la página final
+async function resolverTikTok(url) {
+  let actual = url;
+  for (let i = 0; i < 6 && !ID_TIKTOK.test(actual); i++) {
+    let r;
     try {
-      const r = await fetch(url, { redirect: "follow", headers: { "User-Agent": UA_NAVEGADOR } });
-      final = r.url || url;
+      r = await fetch(actual, { redirect: "manual", headers: { "User-Agent": UA_NAVEGADOR } });
     } catch {
-      /* seguimos con el original */
+      break;
+    }
+    const loc = r.headers.get("location");
+    if (loc) {
+      actual = new URL(loc, actual).toString();
+      continue;
+    }
+    if (r.ok) {
+      const html = await r.text();
+      const m =
+        html.match(/https:\/\/www\.tiktok\.com\/@[\w.-]+\/(?:video|photo)\/\d+/) ||
+        html.match(/"canonical":"([^"]+)"/);
+      if (m) actual = (m[1] || m[0]).replace(/\\u002F/g, "/");
+    }
+    break;
+  }
+  return actual;
+}
+
+async function oembedTikTok(url) {
+  try {
+    const r = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`, {
+      headers: { "User-Agent": UA_NAVEGADOR, Accept: "application/json" },
+    });
+    if (!r.ok) return null;
+    const o = await r.json();
+    return o && (o.thumbnail_url || o.title || o.author_name) ? o : null;
+  } catch {
+    return null;
+  }
+}
+
+// Alternativa pública cuando TikTok no responde al servidor
+async function tikwm(url) {
+  try {
+    const r = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`, {
+      headers: { "User-Agent": UA_NAVEGADOR, Accept: "application/json" },
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return j && j.code === 0 && j.data ? j.data : null;
+  } catch {
+    return null;
+  }
+}
+
+async function leerTikTok(url) {
+  const final = await resolverTikTok(url);
+  let videoId = (final.match(ID_TIKTOK) || [])[1] || null;
+  let usuario = (final.match(/tiktok\.com\/@([\w.-]+)/) || [])[1] || null;
+
+  const enlaceVideo = (id, user) =>
+    user ? `https://www.tiktok.com/@${user}/video/${id}` : `https://m.tiktok.com/v/${id}.html`;
+  const canonica = videoId ? enlaceVideo(videoId, usuario) : final.split("?")[0];
+
+  let o = await oembedTikTok(canonica);
+  if (!o && canonica !== url) o = await oembedTikTok(url);
+
+  const res = {
+    plataforma: "tiktok",
+    url: canonica,
+    videoId,
+    autor: "",
+    autorUrl: "",
+    miniatura: "",
+    descripcion: "",
+  };
+
+  if (o) {
+    videoId ||= (String(o.html || "").match(/data-video-id=["'](\d+)/) || [])[1] || null;
+    usuario ||= o.author_unique_id || null;
+    res.autor = o.author_unique_id || o.author_name || "";
+    res.autorUrl = o.author_url || "";
+    res.miniatura = o.thumbnail_url || "";
+    res.descripcion = o.title || "";
+  }
+
+  // Si falta la miniatura o el texto, segunda vía
+  if (!res.miniatura || !res.descripcion) {
+    const t = await tikwm(videoId ? canonica : url);
+    if (t) {
+      videoId ||= t.id ? String(t.id) : null;
+      usuario ||= t.author?.unique_id || null;
+      res.autor ||= t.author?.unique_id || t.author?.nickname || "";
+      res.miniatura ||= t.origin_cover || t.cover || "";
+      res.descripcion ||= t.title || "";
     }
   }
 
-  const r = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(final)}`, {
-    headers: { "User-Agent": UA_NAVEGADOR },
-  });
-  if (!r.ok) throw new Error("TikTok no ha devuelto información de este vídeo");
-  const o = await r.json();
+  if (!videoId && !res.miniatura && !res.descripcion) {
+    throw new Error("TikTok no ha devuelto información de este vídeo");
+  }
 
-  const videoId =
-    (final.match(/\/video\/(\d+)/) || [])[1] ||
-    (String(o.html || "").match(/data-video-id=["'](\d+)/) || [])[1] ||
-    null;
-
-  return {
-    plataforma: "tiktok",
-    url: videoId && o.author_unique_id
-      ? `https://www.tiktok.com/@${o.author_unique_id}/video/${videoId}`
-      : final.split("?")[0],
-    videoId,
-    autor: o.author_name || o.author_unique_id || "",
-    autorUrl: o.author_url || "",
-    miniatura: o.thumbnail_url || "",
-    descripcion: o.title || "",
-  };
+  res.videoId = videoId;
+  if (videoId) res.url = enlaceVideo(videoId, usuario);
+  if (usuario && !res.autorUrl) res.autorUrl = `https://www.tiktok.com/@${usuario}`;
+  return res;
 }
 
 // ---------- Instagram ----------

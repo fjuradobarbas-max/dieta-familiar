@@ -62,3 +62,22 @@ export const extraerEnlace = (texto) => {
 
 export const esEnlaceValido = (url) =>
   /^https?:\/\/([\w-]+\.)*(tiktok\.com|instagram\.com|instagr\.am)\//i.test(url || "");
+
+// Vuelve a leer el vídeo y completa lo que falte (miniatura caducada,
+// recetas guardadas sin datos...). Nunca borra lo que ya había.
+export const refrescarReceta = async (receta) => {
+  const d = await leerEnlace(receta.url);
+  const cambios = {};
+  const tituloGenerico = !receta.titulo || /^Receta( de .*)?$/.test(receta.titulo);
+  if (d.miniatura && d.miniatura !== receta.miniatura) cambios.miniatura = d.miniatura;
+  if (d.videoId && !receta.videoId) cambios.videoId = d.videoId;
+  if (d.url && (!receta.videoId || d.url !== receta.url) && d.videoId) cambios.url = d.url;
+  if (d.autor && !receta.autor) cambios.autor = d.autor;
+  if (d.autorUrl && !receta.autorUrl) cambios.autorUrl = d.autorUrl;
+  if (d.descripcion && !receta.descripcion) cambios.descripcion = d.descripcion;
+  if (d.titulo && tituloGenerico && !/^Receta( de .*)?$/.test(d.titulo)) cambios.titulo = d.titulo;
+  if (d.ingredientes?.length && !receta.ingredientes?.length) cambios.ingredientes = d.ingredientes;
+  if (d.pasos?.length && !receta.pasos?.length) cambios.pasos = d.pasos;
+  if (Object.keys(cambios).length) await actualizarReceta(receta.id, cambios);
+  return cambios;
+};
