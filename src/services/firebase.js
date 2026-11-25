@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import {
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCp80DfyolQRG6lv8AUaIDWXYSOe_tWKo4",
@@ -13,4 +18,16 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
+// Caché en el móvil: al abrir la app se ven al instante los últimos datos
+// y se actualizan en segundo plano. También funciona sin cobertura.
+let base;
+try {
+  base = initializeFirestore(app, {
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+  });
+} catch (e) {
+  console.warn("Sin caché local de Firestore", e);
+  base = getFirestore(app);
+}
+
+export const db = base;

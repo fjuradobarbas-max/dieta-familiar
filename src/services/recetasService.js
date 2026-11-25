@@ -78,6 +78,14 @@ export const refrescarReceta = async (receta) => {
   if (d.titulo && tituloGenerico && !/^Receta( de .*)?$/.test(d.titulo)) cambios.titulo = d.titulo;
   if (d.ingredientes?.length && !receta.ingredientes?.length) cambios.ingredientes = d.ingredientes;
   if (d.pasos?.length && !receta.pasos?.length) cambios.pasos = d.pasos;
-  if (Object.keys(cambios).length) await actualizarReceta(receta.id, cambios);
+  cambios.revisado = Date.now();
+  await actualizarReceta(receta.id, cambios);
   return cambios;
+};
+
+// Miniatura reducida (≈20 KB en vez de 200-500 KB) con la optimización de imágenes de Vercel
+export const miniaturaPequena = (url, ancho = 384) => {
+  if (!url || /^data:/.test(url)) return url;
+  if (typeof location !== "undefined" && /^(localhost|127\.|192\.168\.)/.test(location.hostname)) return url;
+  return `/_vercel/image?url=${encodeURIComponent(url)}&w=${ancho}&q=70`;
 };
