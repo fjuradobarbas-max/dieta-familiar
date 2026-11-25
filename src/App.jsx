@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import Shopping from "./pages/Shopping";
 import Progress from "./pages/Progress";
+import Recetas from "./pages/Recetas";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route path="/menu" element={<Menu />} />
             <Route path="/shopping" element={<Shopping />} />
             <Route path="/progress" element={<Progress />} />
+            <Route path="/recetas" element={<Recetas />} />
             <Route path="/marcos" element={<Navigate to="/menu?ver=marcos" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
